@@ -1,0 +1,112 @@
+## Build and DRC
+read_netlist ../gate/NangateOpenCellLibrary.tlib -library
+ Begin reading netlist ( ../gate/NangateOpenCellLibrary.tlib )...
+ End parsing Verilog file ../gate/NangateOpenCellLibrary.tlib with 0 errors.
+ End reading netlist: #modules=181, top=AND2_X1, #lines=2744, CPU_time=0.01 sec, Memory=0MB
+read_netlist ../gate/riscv_core.v
+ Begin reading netlist ( ../gate/riscv_core.v )...
+ End parsing Verilog file ../gate/riscv_core.v with 0 errors.
+ End reading netlist: #modules=127, top=riscv_core_0_128_1_16_1_1_0_0_0_0_0_0_0_0_0_3_6_15_5_1a110800, #lines=53910, CPU_time=0.18 sec, Memory=18MB
+run_build_model riscv_core_0_128_1_16_1_1_0_0_0_0_0_0_0_0_0_3_6_15_5_1a110800
+ ------------------------------------------------------------------------------
+ Begin build model for topcut = riscv_core_0_128_1_16_1_1_0_0_0_0_0_0_0_0_0_3_6_15_5_1a110800 ...
+ ------------------------------------------------------------------------------
+ Warning: There were 72 faultable pins lost due to tied gate optimizations. (M126)
+ There were 104908 primitives and 1725 faultable pins removed during model optimizations
+ Warning: Rule B7 (undriven module output pin) was violated 463 times.
+ Warning: Rule B8 (unconnected module input pin) was violated 429 times.
+ Warning: Rule B9 (undriven module internal net) was violated 31 times.
+ Warning: Rule B10 (unconnected module internal net) was violated 459 times.
+ Warning: Rule N20 (underspecified UDP) was violated 7 times.
+ End build model: #primitives=65718, CPU_time=0.40 sec, Memory=30MB
+ ------------------------------------------------------------------------------
+ Begin learning analyses...
+ End learning analyses, total learning CPU time=0.54 sec.
+ ------------------------------------------------------------------------------
+run_drc
+ ------------------------------------------------------------------------------
+ Begin scan design rules checking...
+ ------------------------------------------------------------------------------
+ Begin simulating test protocol procedures...
+ Test protocol simulation completed, CPU time=0.01 sec.
+ ------------------------------------------------------------------------------
+ Begin scan chain operation checking...
+ Scan chain operation checking completed, CPU time=0.00 sec.
+ ------------------------------------------------------------------------------
+ Begin clock rules checking...
+ Warning: Rule C2 (unstable nonscan DFF when clocks off) was violated 2130 times.
+ Warning: Rule C25 (unstable cell clock input connected from multiple sources) was violated 3225 times.
+ Clock rules checking completed, CPU time=0.25 sec.
+ ------------------------------------------------------------------------------
+ Begin nonscan rules checking...
+ Nonscan cell summary: #DFF=2130  #DLAT=1097  #RAM_outs=0  tla_usage_type=no_clock_tla
+ Nonscan behavior:  #CU=2130  #TLA=1097
+ Nonscan rules checking completed, CPU time=0.00 sec.
+ ------------------------------------------------------------------------------
+ Begin DRC dependent learning...
+ Fast-sequential depth results: control=0(0), observe=0(0), detect=0(0), CPU time=0.01 sec
+ DRC dependent learning completed, CPU time=0.12 sec.
+ ------------------------------------------------------------------------------
+ DRC Summary Report
+ ------------------------------------------------------------------------------
+ Warning: Rule C2 (unstable nonscan DFF when clocks off) was violated 2130 times.
+ Warning: Rule C25 (unstable cell clock input connected from multiple sources) was violated 3225 times.
+ There were 5355 violations that occurred during DRC process.
+ Design rules checking was successful, total CPU time=0.38 sec.
+ ------------------------------------------------------------------------------
+## Load and check patterns
+set_patterns -external dumpports_gate.evcd.fixed  -sensitive -strobe_period { 10 ns } -strobe_offset { 59 ns }
+ End reading 3640 patterns, CPU_time = 0.06 sec, Memory = 1MB
+run_simulation -sequential
+ Begin sequential simulation of 3640 external patterns.
+ Simulation completed: #patterns=3640/7289, #fail_pats=0(0), #failing_meas=0(0), #rejected_pats=0, CPU time=1.85
+## Fault list (select one of the following)
+#add_faults -all
+#add_faults ex_stage_i/alu_i
+add_faults ex_stage_i/alu_i/int_div_div_i
+ 5280 faults were added to fault list.
+#add_faults ex_stage_i/mult_i
+#add_faults id_stage_i/registers_i/riscv_register_file_i
+#read_faults previous_fsim_faults.txt -force_retain_code -add
+## Fault simulation
+run_fault_sim -sequential
+ ------------------------------------------------------------------------------
+ Begin sequential fault simulation of 5279 faults on 3640 external patterns.
+ -----------------------------------------------------------
+ #faults    pass #faults   cum. #faults     test    process
+ simulated  detect/total   detect/active  coverage  CPU time
+ ---------  -------------  -------------  --------  --------
+ 1758         1503   1758    1503   3776    28.48%     13.66
+ 3380         1541   1622    3044   2235    57.68%     25.87
+ 5062         1596   1682    4640    639    87.92%     39.33
+ 5279          175    217    4815    464    91.26%     48.27
+ Fault simulation completed: #faults_simulated=5279, test_coverage=91.26%, CPU time=48.27
+## Reports
+set_faults -fault_coverage
+ Warning: Unused gate deletion affects fault coverage calculation. (M245)
+report_faults -level {5 100} > report_faults_hierarchy.txt
+report_faults -level {100 1} -verbose > report_faults_verbose.txt
+report_summaries > report_summaries.txt
+report_summaries
+     Uncollapsed Stuck Fault Summary Report
+ -----------------------------------------------
+ fault class                     code   #faults
+ ------------------------------  ----  ---------
+ Detected                         DT       4815
+ Possibly detected                PT          5
+ Undetectable                     UD          1
+ ATPG untestable                  AU          0
+ Not detected                     ND        459
+ -----------------------------------------------
+ total faults                              5280
+ test coverage                            91.26%
+ fault coverage                           91.24%
+ -----------------------------------------------
+            Pattern Summary Report
+ -----------------------------------------------
+ #internal patterns                           0
+ #external patterns (dumpports_gate.evcd.fixed)   3640
+     #full_sequential patterns             3640
+ -----------------------------------------------
+write_faults fsim_faults.txt -replace -all
+ Write faults completed: 5280 faults were written into file "fsim_faults.txt".

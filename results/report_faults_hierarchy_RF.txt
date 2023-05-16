@@ -1,0 +1,6 @@
+ #faults  testcov  instance name (type)
+ -------  -------  -----------------------
+   49384   79.57%  /  (top_module)
+   49384   79.57%     /id_stage_i  (riscv_id_stage_N_HWLP2_PULP_SECURE1_APU0_FPU0_Zfinx0_FP_DIVSQRT0_SHARED_FP0_SHARED_DSP_MULT0_SHARED_INT_MULT0_SHARED_INT_DIV0_SHARED_FP_DIVSQRT0_WAPUTYPE0_APU_NARGS_CPU3_APU_WOP_CPU6_APU_NDSFLAGS_CPU15_APU_NUSFLAGS_CPU5)
+   49384   79.57%        /id_stage_i/registers_i  (register_file_test_wrap_ADDR_WIDTH6_FPU0_Zfinx0)
+   49384   79.57%           /id_stage_i/registers_i/riscv_register_file_i  (riscv_register_file_ADDR_WIDTH6_DATA_WIDTH32_FPU0_Zfinx0)

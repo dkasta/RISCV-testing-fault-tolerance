@@ -1,0 +1,5 @@
+ #faults  testcov  instance name (type)
+ -------  -------  -----------------------
+   39780   90.13%  /  (top_module)
+   39780   90.13%     /ex_stage_i  (riscv_ex_stage_FPU0_FP_DIVSQRT0_SHARED_FP0_SHARED_DSP_MULT0_SHARED_INT_DIV0_APU_NARGS_CPU3_APU_WOP_CPU6_APU_NDSFLAGS_CPU15_APU_NUSFLAGS_CPU5)
+   39780   90.13%        /ex_stage_i/mult_i  (riscv_mult_SHARED_DSP_MULT0)
